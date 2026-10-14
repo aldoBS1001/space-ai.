@@ -38,11 +38,21 @@ jobs:
             -destination "id=$SIM_UDID" -resultBundlePath TestResults.xcresult \
             CODE_SIGNING_ALLOWED=NO | tee xcodebuild-test.log | tail -50
 
+      - name: Publicar errores de compilación/pruebas como anotaciones
+        if: failure()
+        run: |
+          grep -E "error:|: error|XCTAssert.*failed|Test Case .* failed|\*\* .* FAILED \*\*|fatal error" xcodebuild-test.log \
+            | sed 's#.*/ios/##' | sort -u | head -45 | while IFS= read -r l; do echo "::error title=xcodebuild::$l"; done
+
       - name: Compilación para dispositivo (Release, sin firma)
         run: |
           set -o pipefail
           xcodebuild build -project SpaceAI.xcodeproj -scheme SpaceAI -configuration Release \
-            -sdk iphoneos -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO | tail -20
+            -sdk iphoneos -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO | tee xcodebuild-device.log | tail -20
+
+      - name: Errores de compilación para dispositivo
+        if: failure()
+        run: grep -E "error:" xcodebuild-device.log | sed 's#.*/ios/##' | sort -u | head -45 | while IFS= read -r l; do echo "::error title=device::$l"; done
 
       - name: Archivo firmado e IPA (solo si existen los secretos de Apple)
         env:

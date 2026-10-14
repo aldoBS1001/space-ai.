@@ -71,6 +71,24 @@ jobs:
       - name: Lint (incluye reglas de permisos y Play)
         run: ./gradlew --no-daemon :app:lintDebug
 
+      - name: Publicar hallazgos de lint como anotaciones
+        if: failure()
+        run: |
+          F=app/build/reports/lint-results-debug.xml
+          test -f "$F" || exit 0
+          python3 - "$F" <<'PY'
+          import sys, xml.etree.ElementTree as ET
+          n = 0
+          for i in ET.parse(sys.argv[1]).getroot().iter("issue"):
+              if i.get("severity") not in ("Error", "Fatal"): continue
+              loc = i.find("location"); f = loc.get("file", "") if loc is not None else ""
+              f = f[f.find("android/"):] if "android/" in f else f
+              line = loc.get("line", "1") if loc is not None else "1"
+              print(f"::error file={f},line={line},title=lint {i.get('id')}::{i.get('message')}")
+              n += 1
+              if n >= 40: break
+          PY
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
