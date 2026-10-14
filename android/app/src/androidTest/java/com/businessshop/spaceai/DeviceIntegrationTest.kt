@@ -70,9 +70,12 @@ class DeviceIntegrationTest {
             put(MediaStore.Images.Media.DISPLAY_NAME, name)
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
             put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/SpaceAITest")
+            put(MediaStore.Images.Media.IS_PENDING, 1)
         }
         val uri = ctx.contentResolver.insert(MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), v)!!
         ctx.contentResolver.openOutputStream(uri)!!.use { it.write(data) }
+        // Publicar el archivo como lo haría una cámara: IS_PENDING=0 hace que MediaStore lo indexe.
+        ctx.contentResolver.update(uri, ContentValues().apply { put(MediaStore.Images.Media.IS_PENDING, 0) }, null, null)
         created += uri
         return uri
     }

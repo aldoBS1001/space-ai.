@@ -55,8 +55,10 @@ class MediaStoreScanner(private val context: Context) {
                 if (out.size % 200 == 0 && cancel.isCancelled()) throw ScanCancelledException()
                 if (idx.pending >= 0 && c.getInt(idx.pending) == 1) continue // aún se está escribiendo
                 val id = c.getLong(idx.id)
-                val size = c.getLong(idx.size)
-                if (size <= 0) continue
+                // MediaStore actualiza SIZE de forma asíncrona tras escribir un archivo: si aún es 0,
+                // se mide el archivo real en lugar de omitirlo o inventar un tamaño.
+                val size = c.long0(idx.size).takeIf { it > 0 }
+                    ?: realSize(ContentUris.withAppendedId(collection, id)) ?: continue
                 val path = (c.getStringOrNull(idx.relativePath) ?: "") + "/" + (c.getStringOrNull(idx.bucket) ?: "")
                 val modifiedMs = c.long0(idx.modified) * 1000L
                 val takenMs = c.long0(idx.taken).takeIf { it > 0 } ?: (c.long0(idx.added) * 1000L)
@@ -81,6 +83,10 @@ class MediaStoreScanner(private val context: Context) {
         }
         return out
     }
+
+    private fun realSize(uri: Uri): Long? = runCatching {
+        resolver.openFileDescriptor(uri, "r")?.use { it.statSize }
+    }.getOrNull()?.takeIf { it > 0 }
 
     /** true si el elemento sigue visible (no borrado ni en papelera). */
     fun exists(uri: Uri): Boolean = runCatching {
