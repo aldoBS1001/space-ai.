@@ -27,7 +27,9 @@ Se rompió deliberadamente el código y se volvieron a correr las pruebas:
 | Quitar la verificación de aprobación en `SafeCleanupEngine` | 3 pruebas fallan ✔ |
 | Ampliar el radio de casi-exactas de 2 a 64 bits | 3 pruebas fallan ✔ |
 
-## 2. Se ejecutan en CI (no ejecutadas aquí — sin SDK de Android ni Xcode)
+## 2. Ejecutadas en CI — todas aprobadas (runs 38579221215 Android y 38579221239 iOS, 14 oct 2026)
+
+La CI encontró y se corrigieron: 2 errores de compilación Swift, 1 regla de lint, 1 falla de prueba iOS (clave del historial sin Llavero) y 1 **bug real de Android**: MediaStore reporta tamaño 0 justo después de escribir un archivo y el escáner lo omitía; ahora mide el tamaño real.
 
 | Suite | Dónde | Qué valida |
 |---|---|---|
@@ -58,6 +60,5 @@ Se rompió deliberadamente el código y se volvieron a correr las pruebas:
 | Bajo rendimiento | Concurrencia limitada a 3; miniaturas de 512 px. Medición en gama media pendiente |
 
 ## 4. Pendiente antes de publicar (requiere dispositivo físico)
-1. Ejecutar ambos workflows en verde y adjuntar sus reportes aquí.
 2. Prueba manual en un Android gama media (Android 10 y 14) y un iPhone (iOS 16+): análisis de ≥5 000 fotos, limpieza de duplicados, compresión de un video 4K, permisos limitados y denegados.
 3. Revisar tiempos y consumo con Android Studio Profiler / Instruments.

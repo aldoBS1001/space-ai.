@@ -4,18 +4,15 @@
 
 > Un producto de **Business Shop A&A** — el logotipo aparece en la pantalla de inicio y en Configuración › Acerca de (variantes clara y oscura en `design/`). Bundle/paquete: `com.businessshop.spaceai`.
 
-## Estado real (14 oct 2026)
+## Estado real (14 oct 2026) — CI en verde
 
 | Componente | Estado | Evidencia |
 |---|---|---|
-| Motor central Kotlin (duplicados, similares, calidad, riesgo, recomendaciones, eliminación segura, compresión) | **Compilado y probado: 59/59 pruebas** | `docs/evidencia/core-tests-local.log` |
-| Pruebas de mutación (romper reglas de seguridad → las pruebas fallan) | **Verificado** | `docs/REPORTE_PRUEBAS.md` |
-| App Android (Compose, MediaStore, SAF, Media3, Keystore) | Código completo, **no compilado aquí** | Se compila en GitHub Actions (`android.yml`) |
-| APK de prueba / AAB | **No generados aquí** | Los genera `android.yml` (artefacto `spaceai-android`) |
-| Motor Swift + app iOS (SwiftUI, PhotoKit, Vision, AVFoundation) | Código completo, **no compilado aquí** | Se compila y prueba en macOS con `ios.yml` |
-| IPA firmada | Requiere tu certificado y perfil de Apple | `ios.yml` la genera si cargas los secretos |
-
-El entorno donde se construyó bloquea el SDK de Android, Maven/Google y no tiene Xcode, por eso los binarios se producen en CI real. **Ningún APK, AAB o IPA se declara listo hasta que el workflow correspondiente termine en verde.**
+| Motor central Kotlin | **59/59 pruebas** (local y en CI) | `docs/evidencia/core-tests-local.log`, workflow Android |
+| App Android | **Compila; lint sin errores; APK debug, APK y AAB release generados**; sin permiso de internet verificado en el APK | Run [38579221215](https://github.com/aldoBS1001/space-ai./actions/runs/38579221215), artefacto `spaceai-android` |
+| Pruebas en emulador Android 10 (API 29) y 14 (API 34) | **Aprobadas** (MediaStore real, borrado verificado, Keystore, UI) | Artefactos `spaceai-android-device-tests-*` |
+| Motor Swift (40 pruebas) + app iOS | **Compila; pruebas unitarias y de interfaz aprobadas en simulador; build Release para dispositivo OK** | Run 38579221239, artefacto `spaceai-ios` |
+| AAB firmado / IPA | Pendiente de cargar los secretos de firma (keystore y certificado de Apple) | `docs/MANUAL_INSTALACION.md` |
 
 ## Estructura
 
