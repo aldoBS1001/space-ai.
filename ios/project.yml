@@ -1,0 +1,83 @@
+# Proyecto Xcode generado con XcodeGen (https://github.com/yonaskolb/XcodeGen):
+#   brew install xcodegen && cd ios && xcodegen generate && open SpaceAI.xcodeproj
+name: SpaceAI
+options:
+  bundleIdPrefix: com.businessshop
+  deploymentTarget:
+    iOS: "16.0"
+  developmentLanguage: es-MX
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: ""            # Se define al firmar (Xcode o variable DEVELOPMENT_TEAM en CI)
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+packages:
+  SpaceAICore:
+    path: SpaceAICore
+targets:
+  SpaceAI:
+    type: application
+    platform: iOS
+    sources:
+      - path: SpaceAI
+    dependencies:
+      - package: SpaceAICore
+    info:
+      path: SpaceAI/Info.plist
+      properties:
+        CFBundleDisplayName: SPACE AI
+        CFBundleDevelopmentRegion: es-MX
+        CFBundleLocalizations: [es-MX, en]
+        LSRequiresIPhoneOS: true
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen:
+          UIColorName: AccentColor
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSPhotoLibraryUsageDescription: "SPACE AI analiza tus fotos y videos en este iPhone para encontrar duplicados, fotos similares y videos grandes. No se sube nada."
+        NSPhotoLibraryAddUsageDescription: "SPACE AI guarda copias comprimidas de tus videos en tu fototeca solo cuando tú lo confirmas."
+        PHPhotoLibraryPreventAutomaticLimitedAccessAlert: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.businessshop.spaceai
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "1,2"
+  SpaceAITests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [SpaceAITests]
+    dependencies:
+      - target: SpaceAI
+      - package: SpaceAICore
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+  SpaceAIUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [SpaceAIUITests]
+    dependencies:
+      - target: SpaceAI
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  SpaceAI:
+    build:
+      targets:
+        SpaceAI: all
+    test:
+      gatherCoverageData: true
+      targets: [SpaceAITests, SpaceAIUITests]
+    archive:
+      config: Release

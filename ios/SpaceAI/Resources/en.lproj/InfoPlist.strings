@@ -1,0 +1,3 @@
+"NSPhotoLibraryUsageDescription" = "SPACE AI analyzes your photos and videos on this iPhone to find duplicates, similar shots and large videos. Nothing is uploaded.";
+"NSPhotoLibraryAddUsageDescription" = "SPACE AI saves compressed copies of your videos to your library only when you confirm.";
+"CFBundleDisplayName" = "SPACE AI";

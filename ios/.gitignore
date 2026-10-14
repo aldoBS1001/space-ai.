@@ -1,0 +1,6 @@
+*.xcodeproj
+SpaceAI/Info.plist
+DerivedData/
+build/
+.build/
+*.xcuserstate
