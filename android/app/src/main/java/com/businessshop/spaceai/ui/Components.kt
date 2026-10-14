@@ -137,9 +137,10 @@ fun StatRow(label: String, value: String) {
 fun Thumb(item: MediaItem, modifier: Modifier = Modifier) {
     val ctx = LocalContext.current
     val bmp by produceState<android.graphics.Bitmap?>(null, item.id) {
-        value = withContext(Dispatchers.IO) {
+        val loaded = withContext(Dispatchers.IO) {
             runCatching { ctx.contentResolver.loadThumbnail(UriCodec.toUri(item.id), Size(300, 300), null) }.getOrNull()
         }
+        value = loaded
     }
     Box(modifier.aspectRatio(1f).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
         bmp?.let { Image(it.asImageBitmap(), contentDescription = item.displayName, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize()) }

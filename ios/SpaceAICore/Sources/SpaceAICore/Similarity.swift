@@ -22,6 +22,9 @@ public struct SimilarGroup: Sendable {
     public var items: [PhotoSignature]
     public var keeper: PhotoSignature
     public var isBurst: Bool
+    public init(items: [PhotoSignature], keeper: PhotoSignature, isBurst: Bool) {
+        self.items = items; self.keeper = keeper; self.isBurst = isBurst
+    }
     public var candidates: [PhotoSignature] { items.filter { $0.item.id != keeper.item.id } }
     public var reclaimableBytes: Int64 { candidates.reduce(0) { $0 + $1.item.sizeBytes } }
 }

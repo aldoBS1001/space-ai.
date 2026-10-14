@@ -35,6 +35,7 @@ public struct DuplicateGroup: Sendable {
     public var hash: String
     public var items: [MediaItem]
     public var keeper: MediaItem
+    public init(hash: String, items: [MediaItem], keeper: MediaItem) { self.hash = hash; self.items = items; self.keeper = keeper }
     public var duplicates: [MediaItem] { items.filter { $0.id != keeper.id } }
     public var reclaimableBytes: Int64 { duplicates.reduce(0) { $0 + $1.sizeBytes } }
 }

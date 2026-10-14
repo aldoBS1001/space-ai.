@@ -57,7 +57,7 @@ final class PhotoLibrary: @unchecked Sendable {
                 height: asset.pixelHeight,
                 durationMillis: Int64(asset.duration * 1000),
                 isScreenshot: asset.mediaSubtypes.contains(.photoScreenshot),
-                isScreenRecording: Self.isScreenRecording(asset),
+                isScreenRecording: isVideo && Self.isScreenRecording(resource?.originalFilename),
                 isFavorite: asset.isFavorite,
                 burstId: asset.representsBurst || asset.burstIdentifier != nil ? asset.burstIdentifier : nil,
                 deletable: asset.canPerform(.delete)
@@ -70,9 +70,9 @@ final class PhotoLibrary: @unchecked Sendable {
         return out
     }
 
-    private static func isScreenRecording(_ asset: PHAsset) -> Bool {
-        if #available(iOS 15.0, *) { return asset.mediaSubtypes.contains(.videoScreenRecording) }
-        return false
+    /// PhotoKit no expone un subtipo público para grabaciones de pantalla; iOS las guarda como "RPReplay_*.mp4".
+    private static func isScreenRecording(_ filename: String?) -> Bool {
+        filename?.lowercased().hasPrefix("rpreplay") ?? false
     }
 
     /// Tamaño del recurso original. PhotoKit no tiene API pública documentada para el tamaño;
