@@ -1,0 +1,51 @@
+name: iOS TestFlight
+
+# Firma automática con una clave de API de App Store Connect: Xcode crea el certificado y el
+# perfil por sí mismo y sube la build a TestFlight. Se ejecuta manualmente desde Actions.
+on:
+  workflow_dispatch:
+
+jobs:
+  testflight:
+    runs-on: macos-15
+    defaults:
+      run:
+        working-directory: ios
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verificar secretos
+        env:
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+          KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          for v in KEY_ID ISSUER KEY_P8 TEAM; do [ -n "${!v}" ] || { echo "::error::Falta el secreto $v"; exit 1; }; done
+          mkdir -p "$RUNNER_TEMP/asc" && printf '%s' "$KEY_P8" > "$RUNNER_TEMP/asc/AuthKey.p8"
+      - name: Generar proyecto
+        run: brew install xcodegen && xcodegen generate
+      - name: Archivar con firma automática
+        run: |
+          set -o pipefail
+          xcodebuild archive -project SpaceAI.xcodeproj -scheme SpaceAI -configuration Release \
+            -archivePath SpaceAI.xcarchive -destination 'generic/platform=iOS' \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey.p8" \
+            -authenticationKeyID "${{ secrets.ASC_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.ASC_ISSUER_ID }}" \
+            DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" CODE_SIGN_STYLE=Automatic \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} | tee archive.log | tail -30
+      - name: Errores de archivo
+        if: failure()
+        run: grep -E "error:|error\b" archive.log | sort -u | head -40 | while IFS= read -r l; do echo "::error title=archive::$l"; done
+      - name: Subir a TestFlight
+        run: |
+          set -o pipefail
+          xcodebuild -exportArchive -archivePath SpaceAI.xcarchive -exportOptionsPlist ExportOptions-TestFlight.plist \
+            -exportPath export -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey.p8" \
+            -authenticationKeyID "${{ secrets.ASC_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.ASC_ISSUER_ID }}" | tee export.log | tail -30
+      - name: Errores de subida
+        if: failure()
+        run: grep -iE "error" export.log | sort -u | head -40 | while IFS= read -r l; do echo "::error title=upload::$l"; done
