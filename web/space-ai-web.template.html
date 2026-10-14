@@ -1,0 +1,347 @@
+<title>SPACE AI Web</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: una columna estrecha tipo app, anillo de medición arriba, grupos de fotos como tarjetas de revisión. */
+:root{
+  --bg:#f3f5fb; --surface:#ffffff; --surface-2:#e9edf7; --fg:#121726; --muted:#5a6278; --line:#d5dbea;
+  --accent:#2f5bff; --accent-soft:#e1e8ff; --ok:#1e9e6a; --warn:#c98408; --bad:#d64545; --on-accent:#ffffff;
+  --display:"Sora", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --body:"Figtree", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0b0f1c; --surface:#141a2c; --surface-2:#1e2538; --fg:#e8ebf4; --muted:#a3abc2; --line:#2c344c;
+  --accent:#6f95ff; --accent-soft:#1a2a6b; --ok:#3cc28a; --warn:#f0b13c; --bad:#ff7a7a; --on-accent:#07123d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b0f1c; --surface:#141a2c; --surface-2:#1e2538; --fg:#e8ebf4; --muted:#a3abc2; --line:#2c344c;
+  --accent:#6f95ff; --accent-soft:#1a2a6b; --ok:#3cc28a; --warn:#f0b13c; --bad:#ff7a7a; --on-accent:#07123d; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+main{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+h1{font-size:1.6rem;letter-spacing:-.01em}
+h2{font-size:1.15rem}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:.875rem}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.tag{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.ring-wrap{display:grid;place-items:center;padding-block:6px}
+.ring{position:relative;width:min(230px,70vw);aspect-ratio:1;max-width:100%}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:11;stroke-linecap:round}
+.ring .track{stroke:var(--surface-2)}
+.ring .val{stroke:var(--accent);transition:stroke-dashoffset 1s ease}
+.ring .center{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:2px;padding:24px}
+.ring .big{font-family:var(--display);font-size:clamp(1.5rem,7vw,2rem);font-weight:700;font-variant-numeric:tabular-nums}
+.btn{appearance:none;border:0;border-radius:18px;min-height:58px;width:100%;font:600 1rem/1 var(--display);letter-spacing:.06em;
+  background:var(--accent);color:var(--on-accent);cursor:pointer;padding:0 18px}
+.btn:focus-visible,.chip:focus-visible,.ghost:focus-visible,.tile:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn[disabled]{opacity:.5}
+.ghost{appearance:none;background:none;border:1px solid var(--line);color:var(--fg);border-radius:12px;padding:10px 14px;font:500 .95rem var(--body);cursor:pointer}
+.card{background:var(--surface);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--surface);border-radius:16px;padding:12px 14px}
+.stat b{display:block;font-family:var(--display);font-size:1.25rem;font-variant-numeric:tabular-nums}
+.progress{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.progress>i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.chip{flex:none;appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:99px;padding:8px 12px;font:500 .9rem var(--body);cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.risk{font-size:.75rem;font-weight:600;border-radius:99px;padding:3px 9px;white-space:nowrap}
+.risk.low{color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.risk.mid{color:var(--warn);background:color-mix(in srgb,var(--warn) 16%,transparent)}
+.group{display:flex;flex-direction:column;gap:8px}
+.group-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.tile{position:relative;border-radius:12px;overflow:hidden;background:var(--surface-2);aspect-ratio:1;max-width:100%;border:3px solid transparent;cursor:pointer;padding:0;appearance:none}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.tile.del{border-color:var(--bad)}
+.tile.done{opacity:.35}
+.tile .lbl{position:absolute;left:0;right:0;bottom:0;padding:14px 6px 5px;font-size:.72rem;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.65));text-align:left}
+.tile .badge{position:absolute;top:5px;left:5px;font-size:.7rem;font-weight:700;border-radius:8px;padding:2px 6px;background:var(--accent);color:var(--on-accent)}
+.tile.del .badge{background:var(--bad);color:#fff}
+.steps{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.logo{display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:8px}
+.logo img{height:64px;width:auto}
+.logo .dark{display:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .logo .light{display:none}:root:not([data-theme="light"]) .logo .dark{display:block}}
+:root[data-theme="dark"] .logo .light{display:none}:root[data-theme="dark"] .logo .dark{display:block}
+.empty{display:flex;flex-direction:column;gap:8px}
+.found{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:start}
+.dot{width:10px;height:10px;border-radius:50%;margin-top:6px}
+input[type=file]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<main>
+  <header>
+    <div>
+      <div class="tag">Versión web · análisis</div>
+      <h1>SPACE AI</h1>
+      <p class="muted">Tu espacio, bajo control.</p>
+    </div>
+  </header>
+
+  <div class="ring-wrap">
+    <div class="ring" id="ring" role="img" aria-label="Aún no hay fotos analizadas">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="track" cx="60" cy="60" r="52"></circle>
+        <circle class="val" id="ringVal" cx="60" cy="60" r="52" stroke-dasharray="326.73" stroke-dashoffset="326.73"></circle>
+      </svg>
+      <div class="center">
+        <span class="big" id="ringBig">0 B</span>
+        <span class="muted small" id="ringSub">recuperables</span>
+      </div>
+    </div>
+  </div>
+
+  <label for="picker" class="sr-only" hidden>Elegir fotos</label>
+  <input type="file" id="picker" accept="image/*" multiple>
+  <button class="btn" id="pickBtn" type="button">ELEGIR FOTOS PARA ANALIZAR</button>
+
+  <section class="card" id="progressCard" hidden aria-live="polite">
+    <div class="group-head"><strong id="progressText">Analizando…</strong><button class="ghost" id="cancelBtn" type="button">Cancelar</button></div>
+    <div class="progress"><i id="progressBar"></i></div>
+    <p class="muted small">Todo se procesa en este teléfono. Ninguna foto sale de él.</p>
+  </section>
+
+  <section class="card empty" id="emptyCard">
+    <h2>Qué busca</h2>
+    <div class="found">
+      <span class="dot" style="background:var(--ok)"></span><p><b>Duplicados exactos</b> · misma foto byte por byte (SHA-256). Se conserva una.</p>
+      <span class="dot" style="background:var(--warn)"></span><p><b>Fotos similares y ráfagas</b> · tomas casi iguales con minutos de diferencia. Se conserva la más nítida.</p>
+      <span class="dot" style="background:var(--warn)"></span><p><b>Borrosas, oscuras y capturas de pantalla</b> · candidatas a revisar.</p>
+    </div>
+    <p class="muted small">En el selector de Fotos toca <b>Seleccionar</b> y desliza el dedo sobre las miniaturas para marcar muchas a la vez. Empieza con unas 200 a 500 fotos.</p>
+  </section>
+
+  <section id="results" hidden>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <nav class="chips" id="chips" hidden aria-label="Categorías"></nav>
+  <section id="groups" class="card" hidden></section>
+
+  <section class="card" id="howCard" hidden>
+    <h2>Cómo borrarlas en Fotos</h2>
+    <ol class="steps small">
+      <li>Abre <b>Fotos</b> y toca <b>Seleccionar</b>.</li>
+      <li>Marca las fotos con borde rojo de esta lista. Toca la miniatura aquí para verla en grande y reconocerla.</li>
+      <li>Toca el bote de basura. iOS las guarda 30 días en <b>Eliminados recientemente</b>; vacía ese álbum para liberar el espacio.</li>
+      <li>Vuelve aquí y toca la miniatura para marcarla como borrada.</li>
+    </ol>
+    <p class="muted small">Los tamaños son los de las copias que Safari entrega a la página y pueden variar un poco frente a lo que ocupa cada foto en tu iPhone.</p>
+  </section>
+
+  <div class="logo">
+    <img class="light" alt="Business Shop" src="data:image/png;base64,__LOGO_LIGHT__">
+    <img class="dark" alt="Business Shop" src="data:image/png;base64,__LOGO_DARK__">
+    <span class="muted small">Un producto de Business Shop</span>
+  </div>
+</main>
+
+<dialog id="viewer" style="border:0;border-radius:18px;padding:0;max-width:92vw;background:var(--surface);color:var(--fg)">
+  <img id="viewerImg" alt="" style="display:block;max-width:92vw;max-height:70vh">
+  <div style="padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px">
+    <span id="viewerText" class="small"></span>
+    <button class="ghost" id="viewerToggle" type="button">Marcar como borrada</button>
+  </div>
+  <div style="padding:0 12px 12px"><button class="ghost" id="viewerClose" type="button" style="width:100%">Cerrar</button></div>
+</dialog>
+
+<script>
+(() => {
+"use strict";
+// ---------- Motor (mismo algoritmo que SpaceAICore / android core) ----------
+const BLUR_VAR = 60, DARK_MEAN = 45, DARK_FRAC = 0.70, NEAR_EXACT = 2, SIMILAR = 8, WINDOW_MS = 10 * 60 * 1000, ASPECT_TOL = 0.08;
+
+function fmt(b){ if(b<1000) return b+" B"; const u=["KB","MB","GB","TB"]; let v=b, i=-1; while(v>=1000&&i<u.length-1){v/=1000;i++;} return (v>=100?v.toFixed(0):v.toFixed(1))+" "+u[i]; }
+
+// Reducción por promedio de área.
+function resize(src, w, h, nw, nh){
+  const out = new Float32Array(nw*nh), sx = w/nw, sy = h/nh;
+  for(let oy=0; oy<nh; oy++){ const y0=oy*sy, y1=(oy+1)*sy;
+    for(let ox=0; ox<nw; ox++){ const x0=ox*sx, x1=(ox+1)*sx; let s=0, a=0;
+      for(let y=Math.floor(y0); y<y1 && y<h; y++){ const wy=Math.min(y+1,y1)-Math.max(y,y0);
+        for(let x=Math.floor(x0); x<x1 && x<w; x++){ const wx=Math.min(x+1,x1)-Math.max(x,x0); s+=src[y*w+x]*wx*wy; a+=wx*wy; } }
+      out[oy*nw+ox]= a>0 ? s/a : 0; } }
+  return out;
+}
+// dHash 64 bits como dos enteros de 32 bits.
+function dhash(g, w, h){ const s=resize(g,w,h,9,8); let hi=0, lo=0, bit=63;
+  for(let y=0;y<8;y++) for(let x=0;x<8;x++){ if(s[y*9+x] < s[y*9+x+1]){ if(bit>=32) hi |= 1<<(bit-32); else lo |= 1<<bit; } bit--; }
+  return [hi>>>0, lo>>>0]; }
+function pop(n){ n=n-((n>>>1)&0x55555555); n=(n&0x33333333)+((n>>>2)&0x33333333); return (((n+(n>>>4))&0x0F0F0F0F)*0x01010101)>>>24; }
+function ham(a,b){ return pop(a[0]^b[0]) + pop(a[1]^b[1]); }
+function quality(g, w, h){ let sum=0, dark=0, bright=0; for(const v of g){ sum+=v; if(v<40) dark++; if(v>245) bright++; }
+  let mean=0, m2=0, c=0; for(let y=1;y<h-1;y++) for(let x=1;x<w-1;x++){ const i=y*w+x;
+    const lap=g[i-1]+g[i+1]+g[i-w]+g[i+w]-4*g[i]; c++; const d=lap-mean; mean+=d/c; m2+=d*(lap-mean); }
+  const n=g.length; return { sharp: c>1? m2/c : 0, mean: sum/n, dark: dark/n, bright: bright/n }; }
+function score(q){ const s=Math.min(Math.max(q.sharp/400,0),1), e=1-Math.abs(q.mean-128)/128, cl=1-Math.min(Math.max(q.dark+q.bright,0),1); return .6*s+.25*e+.15*cl; }
+
+// Fecha de toma desde EXIF (DateTimeOriginal) en JPEG.
+async function exifDate(file){
+  try{
+    const buf = new DataView(await file.slice(0, 131072).arrayBuffer());
+    if(buf.getUint16(0)!==0xFFD8) return 0;
+    let off=2;
+    while(off+4<buf.byteLength){ const marker=buf.getUint16(off), len=buf.getUint16(off+2);
+      if(marker===0xFFE1 && buf.getUint32(off+4)===0x45786966){ const t=off+10, le=buf.getUint16(t)===0x4949;
+        const u16=o=>buf.getUint16(t+o,le), u32=o=>buf.getUint32(t+o,le);
+        const readIfd=(o,want)=>{ const n=u16(o); for(let i=0;i<n;i++){ const e=o+2+i*12; if(u16(e)===want) return e; } return -1; };
+        const ifd0=u32(4); let e=readIfd(ifd0,0x8769); if(e<0) return 0;
+        const exif=u32(e+8); e=readIfd(exif,0x9003); if(e<0) e=readIfd(exif,0x9004); if(e<0) return 0;
+        const so=u32(e+8); let s=""; for(let i=0;i<19;i++) s+=String.fromCharCode(buf.getUint8(t+so+i));
+        const m=s.match(/(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/); if(!m) return 0;
+        return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+m[6]).getTime(); }
+      if((marker&0xFF00)!==0xFF00) break; off+=2+len; }
+  }catch(_){}
+  return 0;
+}
+
+async function decode(file){
+  let bmp;
+  try{ bmp = await createImageBitmap(file); }
+  catch(_){ bmp = await new Promise((res,rej)=>{ const im=new Image(); const u=URL.createObjectURL(file); im.onload=()=>{URL.revokeObjectURL(u);res(im);}; im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("ilegible"));}; im.src=u; }); }
+  const W=bmp.width, H=bmp.height, f=Math.min(1, 512/Math.max(W,H)), w=Math.max(1,Math.round(W*f)), h=Math.max(1,Math.round(H*f));
+  const cv=document.createElement("canvas"); cv.width=w; cv.height=h; const cx=cv.getContext("2d",{willReadFrequently:true}); cx.drawImage(bmp,0,0,w,h);
+  const px=cx.getImageData(0,0,w,h).data, g=new Float32Array(w*h);
+  for(let i=0;i<g.length;i++) g[i]=0.299*px[i*4]+0.587*px[i*4+1]+0.114*px[i*4+2];
+  const t=document.createElement("canvas"), ts=Math.min(1,220/Math.max(w,h)); t.width=Math.max(1,Math.round(w*ts)); t.height=Math.max(1,Math.round(h*ts));
+  t.getContext("2d").drawImage(cv,0,0,t.width,t.height);
+  const thumb = await new Promise(r=>t.toBlob(b=>r(b?URL.createObjectURL(b):""),"image/jpeg",.8));
+  if(bmp.close) bmp.close();
+  return { g, w, h, W, H, thumb };
+}
+
+async function sha256(file){ const d=await crypto.subtle.digest("SHA-256", await file.arrayBuffer()); return Array.from(new Uint8Array(d),b=>b.toString(16).padStart(2,"0")).join(""); }
+
+function groupSimilar(items){
+  const el = items.filter(i=>!i.screenshot), n=el.length, parent=el.map((_,i)=>i);
+  const find=x=>{ while(parent[x]!==x){ parent[x]=parent[parent[x]]; x=parent[x]; } return x; };
+  const union=(a,b)=>{ a=find(a); b=find(b); if(a!==b) parent[b]=a; };
+  const aspectOk=(a,b)=>{ const ra=a.W/a.H, rb=b.W/b.H; return Math.abs(ra-rb)/Math.max(ra,rb) <= ASPECT_TOL; };
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) if(ham(el[i].hash,el[j].hash)<=NEAR_EXACT && aspectOk(el[i],el[j])) union(i,j);
+  const dated = el.map((x,i)=>i).filter(i=>el[i].date>0).sort((a,b)=>el[a].date-el[b].date);
+  let start=0;
+  for(let k=0;k<dated.length;k++){ const i=dated[k]; while(el[i].date-el[dated[start]].date>WINDOW_MS) start++;
+    for(let m=start;m<k;m++){ const j=dated[m]; if(ham(el[i].hash,el[j].hash)<=SIMILAR && aspectOk(el[i],el[j])) union(i,j); } }
+  const roots=new Map(); el.forEach((x,i)=>{ const r=find(i); if(!roots.has(r)) roots.set(r,[]); roots.get(r).push(x); });
+  return [...roots.values()].filter(g=>g.length>1).map(g=>{ const keeper=[...g].sort((a,b)=>score(b.q)-score(a.q)||b.W*b.H-a.W*a.H||b.size-a.size)[0]; return {items:g, keeper}; });
+}
+
+// ---------- Estado e interfaz ----------
+const $=id=>document.getElementById(id);
+let photos=[], cats=[], current="", cancelled=false;
+const store={ get(){ try{ return new Set(JSON.parse(localStorage.getItem("spaceai.deleted")||"[]")); }catch(_){ return new Set(); } },
+  set(s){ try{ localStorage.setItem("spaceai.deleted", JSON.stringify([...s])); }catch(_){} } };
+let deleted = store.get();
+const keyOf = p => p.name+"|"+p.size;
+
+function setRing(rec, total){
+  const frac = total>0 ? Math.min(1, rec/total) : 0;
+  $("ringVal").style.strokeDashoffset = String(326.73*(1-frac));
+  $("ringBig").textContent = fmt(rec);
+  $("ringSub").textContent = total>0 ? "recuperables de "+fmt(total)+" analizados" : "recuperables";
+  $("ring").setAttribute("aria-label", "Espacio recuperable estimado: "+fmt(rec)+" de "+fmt(total)+" analizados");
+}
+
+$("pickBtn").addEventListener("click", ()=>$("picker").click());
+$("cancelBtn").addEventListener("click", ()=>{ cancelled=true; });
+$("picker").addEventListener("change", async e=>{
+  const files=[...e.target.files]; e.target.value=""; if(!files.length) return;
+  photos.forEach(p=>p.thumb&&URL.revokeObjectURL(p.thumb)); photos=[]; cancelled=false;
+  $("pickBtn").disabled=true; $("progressCard").hidden=false; $("emptyCard").hidden=true;
+  const prog=(t,i,n)=>{ $("progressText").textContent=t+" "+i+" de "+n; $("progressBar").style.width=(n?100*i/n:0)+"%"; };
+  let unreadable=0;
+  for(let i=0;i<files.length && !cancelled;i++){
+    prog("Analizando fotos",i+1,files.length);
+    const f=files[i];
+    try{ const [d,date]=await Promise.all([decode(f), exifDate(f)]);
+      photos.push({ file:f, name:f.name, size:f.size, type:f.type, date, W:d.W, H:d.H, thumb:d.thumb,
+        hash:dhash(d.g,d.w,d.h), q:quality(d.g,d.w,d.h), screenshot:f.type==="image/png" });
+    }catch(_){ unreadable++; }
+    if(i%8===0) await new Promise(r=>setTimeout(r,0));
+  }
+  // Duplicados exactos: solo se calcula SHA-256 donde coincide el tamaño.
+  const bySize=new Map(); photos.forEach(p=>{ if(!bySize.has(p.size)) bySize.set(p.size,[]); bySize.get(p.size).push(p); });
+  const cand=[...bySize.values()].filter(g=>g.length>1).flat(); const byHash=new Map();
+  for(let i=0;i<cand.length && !cancelled;i++){ prog("Verificando duplicados",i+1,cand.length);
+    try{ const h=await sha256(cand[i].file); if(!byHash.has(h)) byHash.set(h,[]); byHash.get(h).push(cand[i]); }catch(_){} }
+  $("progressCard").hidden=true; $("pickBtn").disabled=false; $("pickBtn").textContent="ANALIZAR OTRAS FOTOS";
+  build([...byHash.values()].filter(g=>g.length>1), unreadable, cancelled);
+});
+
+function build(exactGroups, unreadable, wasCancelled){
+  const exact = exactGroups.map(g=>{ const keeper=[...g].sort((a,b)=>(a.date||9e15)-(b.date||9e15)||a.name.length-b.name.length)[0]; return {items:g, keeper}; });
+  const exactDel = new Set(exact.flatMap(g=>g.items.filter(p=>p!==g.keeper)));
+  const similar = groupSimilar(photos).map(g=>({items:g.items, keeper:g.keeper})).filter(g=>g.items.some(p=>p!==g.keeper && !exactDel.has(p)));
+  const keepers = new Set([...exact.map(g=>g.keeper), ...similar.map(g=>g.keeper)]);
+  const pool = photos.filter(p=>!p.screenshot && !keepers.has(p));
+  const single = (list)=> list.length ? [{items:list, keeper:null}] : [];
+  cats = [
+    { id:"exact", name:"Duplicados exactos", risk:"low", groups:exact },
+    { id:"similar", name:"Similares", risk:"mid", groups:similar },
+    { id:"blurry", name:"Borrosas", risk:"mid", groups:single(pool.filter(p=>p.q.sharp<BLUR_VAR)) },
+    { id:"dark", name:"Oscuras", risk:"mid", groups:single(pool.filter(p=>p.q.mean<DARK_MEAN && p.q.dark>DARK_FRAC)) },
+    { id:"shots", name:"Capturas de pantalla", risk:"mid", groups:single(photos.filter(p=>p.screenshot)) },
+  ].filter(c=>c.groups.length);
+  const flagged = new Set(); cats.forEach(c=>c.groups.forEach(g=>g.items.forEach(p=>{ if(p!==g.keeper) flagged.add(p); })));
+  const rec=[...flagged].reduce((s,p)=>s+p.size,0), total=photos.reduce((s,p)=>s+p.size,0);
+  setRing(rec,total);
+  const dupBytes=[...exactDel].reduce((s,p)=>s+p.size,0);
+  $("stats").innerHTML = [
+    ["Fotos analizadas", photos.length + (wasCancelled?" (parcial)":"")],
+    ["Para revisar", flagged.size],
+    ["Duplicados exactos", fmt(dupBytes)],
+    ["No se pudieron leer", unreadable],
+  ].map(([l,v])=>`<div class="stat"><span class="muted small">${l}</span><b>${v}</b></div>`).join("");
+  $("results").hidden=false; $("howCard").hidden = !cats.length;
+  $("chips").hidden = !cats.length; $("groups").hidden=false;
+  if(!cats.length){ $("groups").innerHTML = `<h2>Todo limpio</h2><p class="muted">No encontramos duplicados, similares, borrosas, oscuras ni capturas entre estas ${photos.length} fotos.</p>`; return; }
+  current = cats[0].id; renderChips(); renderGroups();
+}
+
+function renderChips(){
+  $("chips").innerHTML = cats.map(c=>{ const n=c.groups.reduce((s,g)=>s+g.items.filter(p=>p!==g.keeper).length,0);
+    return `<button class="chip" type="button" data-id="${c.id}" aria-pressed="${c.id===current}">${c.name} · ${n}</button>`; }).join("");
+  $("chips").querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{ current=b.dataset.id; renderChips(); renderGroups(); }));
+}
+
+function esc(s){ return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+let tileIndex=[];
+function renderGroups(){
+  const c=cats.find(x=>x.id===current); tileIndex=[];
+  const risk = c.risk==="low" ? `<span class="risk low">Riesgo bajo</span>` : `<span class="risk mid">Revisa antes de borrar</span>`;
+  const hint = c.groups[0].keeper ? "La foto marcada CONSERVAR es la que se queda. Las de borde rojo son las candidatas a borrar." : "Revisa cada una: solo borra las que de verdad no quieras.";
+  let html = `<div class="group-head"><h2>${c.name}</h2>${risk}</div><p class="muted small">${hint}</p>`;
+  c.groups.forEach((g,gi)=>{
+    const del=g.items.filter(p=>p!==g.keeper), bytes=del.reduce((s,p)=>s+p.size,0);
+    html += `<div class="group">${c.groups.length>1||g.keeper?`<div class="group-head"><span class="small"><b>Grupo ${gi+1}</b> · ${g.items.length} fotos</span><span class="muted small">${fmt(bytes)}</span></div>`:""}<div class="grid">`;
+    const ordered = g.keeper ? [g.keeper, ...del] : g.items;
+    ordered.forEach(p=>{ const k=tileIndex.push(p)-1, keep=p===g.keeper, done=deleted.has(keyOf(p));
+      html += `<button type="button" class="tile${keep?"":" del"}${done?" done":""}" data-k="${k}" aria-label="${esc(p.name)}, ${fmt(p.size)}${keep?", se conserva":", candidata a borrar"}${done?", ya borrada":""}">
+        ${p.thumb?`<img src="${p.thumb}" alt="">`:""}<span class="badge">${keep?"CONSERVAR":(done?"BORRADA":"BORRAR")}</span><span class="lbl">${fmt(p.size)}</span></button>`; });
+    html += `</div></div>`;
+  });
+  $("groups").innerHTML = html;
+  $("groups").querySelectorAll(".tile").forEach(t=>t.addEventListener("click",()=>openViewer(tileIndex[+t.dataset.k], t.classList.contains("del"))));
+}
+
+let viewing=null, viewerUrl="";
+function openViewer(p, deletable){
+  viewing=p; if(viewerUrl) URL.revokeObjectURL(viewerUrl); viewerUrl=URL.createObjectURL(p.file);
+  $("viewerImg").src=viewerUrl; $("viewerImg").alt=p.name;
+  const d = p.date ? new Date(p.date).toLocaleString("es-MX",{dateStyle:"medium",timeStyle:"short"}) : "sin fecha";
+  $("viewerText").textContent = `${p.name} · ${fmt(p.size)} · ${d}`;
+  $("viewerToggle").hidden = !deletable;
+  $("viewerToggle").textContent = deleted.has(keyOf(p)) ? "Desmarcar" : "Ya la borré en Fotos";
+  const dlg=$("viewer"); if(dlg.showModal) dlg.showModal(); else dlg.setAttribute("open","");
+}
+$("viewerToggle").addEventListener("click",()=>{ const k=keyOf(viewing); deleted.has(k)?deleted.delete(k):deleted.add(k); store.set(deleted); closeViewer(); renderGroups(); });
+function closeViewer(){ const dlg=$("viewer"); if(dlg.close) dlg.close(); else dlg.removeAttribute("open"); }
+$("viewerClose").addEventListener("click", closeViewer);
+})();
+</script>
