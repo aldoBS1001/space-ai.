@@ -172,6 +172,10 @@ S = {
 "err_cleanup": ("The cleanup could not be completed. Check the results before trying again.", "La limpieza no se pudo completar. Revisa los resultados antes de intentar de nuevo."),
 "err_no_space": ("Not enough free space to create the compressed copy safely.", "No hay espacio libre suficiente para crear la copia comprimida de forma segura."),
 "err_compression": ("Compression failed. Your original video was not modified.", "La compresión falló. Tu video original no se modificó."),
+"made_by": ("A Business Shop product", "Un producto de Business Shop"),
+"about_title": ("About", "Acerca de"),
+"about_body": ("SPACE AI is developed by Business Shop A&A. Version %1$s.", "SPACE AI es desarrollada por Business Shop A&A. Versión %1$s."),
+"logo_a11y": ("Business Shop logo", "Logotipo de Business Shop"),
 "err_save": ("The copy could not be saved to the gallery. Your original is intact.", "No se pudo guardar la copia en la galería. Tu original está intacto."),
 }
 def esc(t):

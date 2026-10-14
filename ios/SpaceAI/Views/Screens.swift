@@ -42,6 +42,7 @@ struct HomeView: View {
                     }
                 }
                 Text(L("privacy_footer")).font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                BrandFooter()
             }
             .padding(22)
         }
@@ -441,6 +442,10 @@ struct SettingsView: View {
                 Button(L("clear_history"), role: .destructive) { model.clearHistory() }
             }
             Section(L("privacy_title")) { Text(L("privacy_body")).font(.footnote) }
+            Section(L("about_title")) {
+                BrandFooter(logoHeight: 120).padding(.vertical, 8)
+                Text(L("about_body", Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")).font(.footnote)
+            }
         }
         .navigationTitle(L("settings"))
     }

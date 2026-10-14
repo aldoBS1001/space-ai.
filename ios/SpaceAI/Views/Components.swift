@@ -103,3 +103,16 @@ struct AssetThumb: View {
 func categoryTitle(_ c: CleanupCategory) -> String { L("cat_" + c.rawValue) }
 
 func accessLabel(_ a: AccessState) -> String { L("access_" + a.rawValue) }
+
+/// Firma de la empresa: logotipo de Business Shop (el asset cambia solo entre modo claro y oscuro).
+struct BrandFooter: View {
+    var logoHeight: CGFloat = 64
+    var body: some View {
+        VStack(spacing: 4) {
+            Image("BusinessShopLogo").resizable().scaledToFit().frame(height: logoHeight)
+                .accessibilityLabel(L("logo_a11y"))
+            Text(L("made_by")).font(.footnote).foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}

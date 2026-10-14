@@ -89,6 +89,22 @@ fun HomeScreen(
         }
         Text(stringResource(R.string.privacy_footer), textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
+        BrandFooter()
+    }
+}
+
+/** Firma de la empresa: logotipo de Business Shop (variante clara/oscura según el tema). */
+@Composable
+fun BrandFooter(modifier: Modifier = Modifier, logoHeight: androidx.compose.ui.unit.Dp = 64.dp) {
+    Column(modifier.padding(top = 4.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        androidx.compose.foundation.Image(
+            painter = androidx.compose.ui.res.painterResource(R.drawable.logo_business_shop),
+            contentDescription = stringResource(R.string.logo_a11y),
+            modifier = Modifier.height(logoHeight),
+            contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+        )
+        Text(stringResource(R.string.made_by), style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

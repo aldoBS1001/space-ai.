@@ -170,5 +170,9 @@
     <string name="err_cleanup">The cleanup could not be completed. Check the results before trying again.</string>
     <string name="err_no_space">Not enough free space to create the compressed copy safely.</string>
     <string name="err_compression">Compression failed. Your original video was not modified.</string>
+    <string name="made_by">A Business Shop product</string>
+    <string name="about_title">About</string>
+    <string name="about_body">SPACE AI is developed by Business Shop A&amp;A. Version %1$s.</string>
+    <string name="logo_a11y">Business Shop logo</string>
     <string name="err_save">The copy could not be saved to the gallery. Your original is intact.</string>
 </resources>

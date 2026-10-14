@@ -1,5 +1,7 @@
 /* Generado por tools/gen_ios_strings.py: no editar a mano. */
 "a11y_ring" = "Storage: %1$@ used of %2$@, %3$@ free";
+"about_body" = "SPACE AI is developed by Business Shop A&A. Version %1$@.";
+"about_title" = "About";
 "access_denied" = "Denied";
 "access_files" = "Documents";
 "access_full" = "Full access";
@@ -97,6 +99,8 @@
 "keep_copy" = "Keep compressed copy";
 "keep_this" = "Keep this one";
 "large_videos" = "Large videos";
+"logo_a11y" = "Business Shop logo";
+"made_by" = "A Business Shop product";
 "measured_freed" = "Space freed (measured)";
 "measuring" = "Measuring storage…";
 "mode_recently_deleted_ios" = "iOS will ask you to confirm and move the items to Recently Deleted (recoverable for 30 days). Space is freed when that album is emptied.";

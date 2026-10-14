@@ -2,7 +2,7 @@
 
 **Tu espacio, bajo control.** Limpiador inteligente de almacenamiento para iPhone y Android: encuentra duplicados exactos, fotos similares, borrosas y oscuras, videos grandes y comprimibles, y archivos pesados — todo en el dispositivo, sin internet, y nunca borra nada sin que el usuario lo revise y confirme.
 
-> Desarrollado para **Business Shop A&A**. Bundle/paquete: `com.businessshop.spaceai`.
+> Un producto de **Business Shop A&A** — el logotipo aparece en la pantalla de inicio y en Configuración › Acerca de (variantes clara y oscura en `design/`). Bundle/paquete: `com.businessshop.spaceai`.
 
 ## Estado real (14 oct 2026)
 

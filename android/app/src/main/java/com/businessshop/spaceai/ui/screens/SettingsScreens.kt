@@ -111,6 +111,11 @@ fun SettingsScreen(
             Text(stringResource(R.string.privacy_title), style = MaterialTheme.typography.titleMedium)
             Text(stringResource(R.string.privacy_body), style = MaterialTheme.typography.bodyMedium)
         }
+        SectionCard {
+            Text(stringResource(R.string.about_title), style = MaterialTheme.typography.titleMedium)
+            BrandFooter(Modifier.fillMaxWidth(), logoHeight = 120.dp)
+            Text(stringResource(R.string.about_body, com.businessshop.spaceai.BuildConfig.VERSION_NAME), style = MaterialTheme.typography.bodyMedium)
+        }
     } }
 }
 
