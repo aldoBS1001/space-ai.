@@ -126,7 +126,7 @@ jobs:
           target: google_apis
           disable-animations: true
           working-directory: android
-          script: ./gradlew --no-daemon :app:connectedDebugAndroidTest
+          script: ./gradlew --no-daemon :app:connectedDebugAndroidTest || (python3 ../tools/ci_junit_annotations.py 'app/build/outputs/androidTest-results/connected/**/*.xml'; exit 1)
       - uses: actions/upload-artifact@v4
         if: always()
         with:
