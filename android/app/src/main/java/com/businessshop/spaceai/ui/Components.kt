@@ -28,7 +28,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -136,11 +137,11 @@ fun StatRow(label: String, value: String) {
 @Composable
 fun Thumb(item: MediaItem, modifier: Modifier = Modifier) {
     val ctx = LocalContext.current
-    val bmp by produceState<android.graphics.Bitmap?>(null, item.id) {
-        val loaded = withContext(Dispatchers.IO) {
+    var bmp by remember(item.id) { mutableStateOf<android.graphics.Bitmap?>(null) }
+    LaunchedEffect(item.id) {
+        bmp = withContext(Dispatchers.IO) {
             runCatching { ctx.contentResolver.loadThumbnail(UriCodec.toUri(item.id), Size(300, 300), null) }.getOrNull()
         }
-        value = loaded
     }
     Box(modifier.aspectRatio(1f).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
         bmp?.let { Image(it.asImageBitmap(), contentDescription = item.displayName, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize()) }

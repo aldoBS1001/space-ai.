@@ -199,6 +199,7 @@ final class HistoryStore: @unchecked Sendable {
         return u
     }()
     private let lock = NSLock()
+    private var cachedKey: SymmetricKey?
 
     func record(_ r: CleanupReport) {
         append(HistoryEntry(timestamp: Date().timeIntervalSince1970, status: r.status.rawValue, deletedCount: r.deletedCount,
@@ -224,7 +225,16 @@ final class HistoryStore: @unchecked Sendable {
         return (try? JSONDecoder().decode([HistoryEntry].self, from: plain)) ?? []
     }
 
+    /// Clave en el Llavero (solo este dispositivo). Se conserva en memoria para que una falla del Llavero
+    /// (p. ej. binario sin firmar en simulador) no genere una clave distinta en cada operación.
     private func key() -> SymmetricKey {
+        if let cachedKey { return cachedKey }
+        let k = loadOrCreateKey()
+        cachedKey = k
+        return k
+    }
+
+    private func loadOrCreateKey() -> SymmetricKey {
         let tag = "com.businessshop.spaceai.history.key"
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrAccount as String: tag,
                                     kSecReturnData as String: true, kSecMatchLimit as String: kSecMatchLimitOne]
